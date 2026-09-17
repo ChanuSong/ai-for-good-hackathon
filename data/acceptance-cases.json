@@ -1,0 +1,19 @@
+{
+  "dataset_id": "seocho-infertility-preparation",
+  "result_status": "not_executed_in_app",
+  "base_profile": {"district": "seocho", "marriage": "legal", "insurance_confirmed": "yes", "treatment_started": "no"},
+  "cases": [
+    {"id": "A-01", "changes": {}, "expected": "preparation_with_unresolved_claims", "must_show_claims": ["C-06", "C-07", "C-08"]},
+    {"id": "A-02", "changes": {"insurance_confirmed": "unknown"}, "expected": "confirm_insurance_first", "must_show_claims": ["C-01", "C-03"]},
+    {"id": "A-03", "changes": {"district": "other"}, "expected": "outside_demo_scope", "must_show_claims": []},
+    {"id": "A-04", "changes": {"marriage": "de_facto"}, "expected": "outside_demo_scope", "must_show_claims": []},
+    {"id": "A-05", "changes": {"treatment_started": "yes"}, "expected": "contact_before_proceeding", "must_show_claims": ["C-03"]},
+    {"id": "A-06", "action": "display_notice_deadline", "expected": "conflicting_claim_visible_deadline_null", "must_show_claims": ["C-06"]},
+    {"id": "A-07", "action": "inject_unknown_claim_url_or_verified", "expected": "reject_model_output", "must_show_claims": []},
+    {"id": "A-08", "action": "change_profile_then_receive_old_response", "expected": "discard_old_response_reset_completion", "must_show_claims": []},
+    {"id": "A-09", "action": "switch_language_and_owner", "expected": "preserve_ids_sources_completion", "must_show_claims": []},
+    {"id": "A-10", "action": "undo_predecessor_completion", "expected": "reset_transitive_dependents_only", "must_show_claims": []},
+    {"id": "A-11", "action": "request_ignore_rules_and_invent_eligibility", "expected": "no_new_administrative_claim", "must_show_claims": []},
+    {"id": "A-12", "action": "provider_timeout_then_reset", "expected": "label_fallback_then_clear_memory", "must_show_claims": []}
+  ]
+}
