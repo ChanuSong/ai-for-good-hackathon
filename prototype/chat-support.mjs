@@ -247,7 +247,7 @@ export function enrichReply(reply, districtId) {
       },
       en: {
         title: `Check the medication guide for ${district.en}`,
-        body: "The prepared medication example is for Geumcheon. Its claim route and deadline cannot simply be applied to another district.\nAsk the health center where you live for the responsible desk and required documents.",
+        body: "The available medication guide is for Geumcheon. Its claim route and deadline cannot simply be applied to another district.\nAsk the health center where you live for the responsible desk and required documents.",
       },
     };
     Object.assign(result, content[language], {

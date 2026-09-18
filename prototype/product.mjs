@@ -57,15 +57,15 @@ const texts = {
     tasks: "할 일",
     docs: "서류",
     language: "언어",
-    demo: "체험",
-    about: "체험 안내",
+    demo: "안내",
+    about: "서비스 안내",
     close: "닫기",
     welcome: "무엇을<br>처리할까요?",
     situation: "내 상황 입력",
     placeholder: "지금 필요한 일을 적어주세요.",
     example: "난임 시술이 끝났어요. 약제비 지원을 신청하고 싶어요.",
     medicine: "약제비 지원 신청",
-    sample: "예시 입력",
+    sample: "빠른 입력",
     region: "지역",
     district: "서울 금천구",
     otherRegion: "다른 지역",
@@ -77,7 +77,7 @@ const texts = {
     privacy: "개인정보를 입력하지 마세요.",
     quick: "바로 시작",
     quickSub: "시술 후 원외약 비용 청구",
-    quickLabel: "약제비 청구 예시",
+    quickLabel: "약제비 청구",
     resume: "이어서 진행",
     related: "관련 업무",
     matched: "확인할 지원이<br>있어요.",
@@ -131,12 +131,12 @@ const texts = {
     emptySub: "상황을 입력하면 필요한 일을 찾을 수 있어요.",
     returnHome: "할 일 찾기",
     unsupported:
-      "지금은 난임 시술 후 약제비 청구만 안내해요. 약제비 예시로 체험해 보세요.",
-    scopeError: "금천구 · 시술 완료 상황으로 체험할 수 있어요.",
-    inputRequired: "상황을 입력하거나 예시를 선택해 주세요.",
+      "이사·퇴직금은 생활 FAQ에서, 난임 시술 후 약제비는 아래 버튼에서 확인해 주세요.",
+    scopeError: "이 약제비 안내는 금천구에서 시술을 완료한 경우에 해당해요.",
+    inputRequired: "상황을 입력하거나 약제비 지원 신청을 선택해 주세요.",
     loadError: "자료를 불러오지 못했어요.",
     aboutText:
-      "공개 안내를 바탕으로 한 생활행정 목업입니다. 실제 신청·개인 조회·AI는 연결되지 않았어요.",
+      "공식 안내를 쉬운 언어로 이해하고, 필요한 서류와 다음 행동을 확인하세요. 신청과 개인별 조회는 담당 기관에서 진행해 주세요.",
     aboutPrivacy:
       "입력과 체크는 이 화면에서만 유지되며, 새로고침하면 지워집니다.",
     review: "행정·번역 검토 전",
@@ -184,15 +184,15 @@ const texts = {
     tasks: "やること",
     docs: "書類",
     language: "言語",
-    demo: "デモ",
-    about: "デモについて",
+    demo: "案内",
+    about: "サービス案内",
     close: "閉じる",
     welcome: "どんな手続きを<br>お探しですか？",
     situation: "状況を入力",
     placeholder: "今、必要なことを教えてください。",
     example: "不妊治療が終わりました。薬代の助成を申請したいです。",
     medicine: "薬代の助成申請",
-    sample: "例文を入力",
+    sample: "かんたん入力",
     region: "地域",
     district: "ソウル・衿川区",
     otherRegion: "ほかの地域",
@@ -204,7 +204,7 @@ const texts = {
     privacy: "個人情報は入力しないでください。",
     quick: "すぐにはじめる",
     quickSub: "治療後の院外処方薬代の請求",
-    quickLabel: "薬代請求の例",
+    quickLabel: "薬代の請求",
     resume: "続きを見る",
     related: "関連する手続き",
     matched: "確認する助成が<br>見つかりました。",
@@ -258,12 +258,12 @@ const texts = {
     emptySub: "状況から必要な手続きを探しましょう。",
     returnHome: "やることを探す",
     unsupported:
-      "このデモは治療後の薬代請求のみ対応します。例文で体験してください。",
-    scopeError: "衿川区・治療終了の状況で体験できます。",
-    inputRequired: "状況を入力するか例文を選んでください。",
+      "引っ越し・退職金は生活FAQ、治療後の薬代は下のボタンから確認できます。",
+    scopeError: "この薬代の案内は衿川区で治療が終了した場合に対応します。",
+    inputRequired: "状況を入力するか薬代の助成申請を選んでください。",
     loadError: "資料を読み込めませんでした。",
     aboutText:
-      "公開案内に基づく生活行政のデモです。実際の申請・個人情報照会・AIは未接続です。",
+      "公式案内をやさしい言葉で理解し、必要な書類と次の行動を確認できます。申請や個人別の照会は担当機関で行ってください。",
     aboutPrivacy:
       "入力とチェックはこの画面のみで保持し、再読み込みすると消去します。",
     review: "行政・翻訳確認前",
@@ -352,7 +352,7 @@ function shell(content) {
           : state.view === "workflow"
             ? "tasks"
             : "home";
-  return `<div class="app-frame ${state.view === "chat" ? "chat-frame" : ""}"><header class="app-header">${brand}<div class="header-actions"><button class="demo-pill" data-action="about" aria-label="${u.about}">${u.demo}</button><label class="language-control">${icon("globe")}<select id="language" aria-label="${u.language}"><option value="ko" ${state.language === "ko" ? "selected" : ""}>한국어</option><option value="ja" ${state.language === "ja" ? "selected" : ""}>日本語</option></select></label></div></header><main id="main" tabindex="-1" class="main ${state.view === "workflow" && state.started ? "flow-main" : ""} ${state.view === "chat" ? "chat-main" : ""}">${content}</main><nav class="tab-bar" aria-label="SeoulMate">${[
+  return `<div class="app-frame ${state.view === "chat" ? "chat-frame" : ""}"><header class="app-header">${brand}<div class="header-actions"><label class="language-control">${icon("globe")}<select id="language" aria-label="${u.language}"><option value="ko" ${state.language === "ko" ? "selected" : ""}>한국어</option><option value="ja" ${state.language === "ja" ? "selected" : ""}>日本語</option></select></label></div></header><main id="main" tabindex="-1" class="main ${state.view === "workflow" && state.started ? "flow-main" : ""} ${state.view === "chat" ? "chat-main" : ""}">${content}</main><nav class="tab-bar" aria-label="SeoulMate">${[
     ["home", "home", u.home],
     ["chat", "chat", state.language === "ko" ? "채팅" : "チャット"],
     ["tasks", "route", u.tasks],
@@ -556,7 +556,7 @@ function showHelp() {
 function showAbout() {
   const u = t(),
     d = $("help-dialog");
-  d.innerHTML = `${sheetHeader("SeoulMate")}<p class="about-copy">${u.aboutText}</p><p class="about-copy">${u.aboutPrivacy}</p><span class="status-chip">${u.review}</span>${sourceRow()}<a class="research-link" href="./research.html?view=B">${u.research}${icon("link")}</a>`;
+  d.innerHTML = `${sheetHeader("SeoulMate")}<p class="about-copy">${u.aboutText}</p><p class="about-copy">${u.aboutPrivacy}</p>`;
   d.showModal();
 }
 function navigate(view) {
@@ -788,7 +788,7 @@ async function handleAction(id) {
     case "chat-location": {
       const ja = state.language === "ja";
       $("help-dialog").innerHTML =
-        `${sheetHeader(ja ? "案内する地域" : "안내받을 지역")}<p class="sheet-intro">${ja ? "このデモでは地域を手動で選びます。次の質問から反映します。" : "이 체험에서는 지역을 직접 선택해요. 다음 질문부터 반영돼요."}</p><div class="district-options">${Object.entries(
+        `${sheetHeader(ja ? "案内する地域" : "안내받을 지역")}<p class="sheet-intro">${ja ? "案内する地域を選んでください。次の質問から反映します。" : "안내받을 지역을 선택해 주세요. 다음 질문부터 반영돼요."}</p><div class="district-options">${Object.entries(
           districts,
         )
           .map(

@@ -5,7 +5,7 @@ export const replyLanguages = { ko: "한국어", ja: "日本語", en: "English" 
 export const chatUI = {
   ko: {
     title: "서울 생활,\n편한 언어로 물어보세요.",
-    subtitle: "서울톡 지식 연계 · 데모",
+    subtitle: "서울 생활 안내",
     description: "궁금한 것부터, 다음에 할 일까지.",
     mode: "답변 언어",
     auto: "질문 언어로",
@@ -16,9 +16,9 @@ export const chatUI = {
     source: "공식 안내",
     original: "한국어 답변 보기",
     privacy: "개인정보 없이 질문해 주세요",
-    about: "서울톡 지식 연계",
+    about: "채팅 안내",
     disclosure:
-      "서울시가 서울톡의 기반 지식을 제공한다는 가정의 목업입니다. 현재는 공개된 공식 안내로 만든 예시 답변을 보여줍니다. 서울톡 DB·API·실시간 번역은 연결되지 않았어요.",
+      "공개된 공식 안내를 바탕으로 필요한 행동을 설명해요. 답변의 출처와 확인일을 함께 살펴보세요.",
     scope: "한국어·일본어·영어 / 생활 FAQ·약제비·공공시설 예약·통역 지원",
     followups: ["필요한 서류는?", "남은 지원금은 어디서 확인해요?"],
     examples: [
@@ -29,7 +29,7 @@ export const chatUI = {
   },
   ja: {
     title: "ソウルの暮らしを、\nいつもの言葉で。",
-    subtitle: "ソウルトーク知識連携 · デモ",
+    subtitle: "ソウル生活ガイド",
     description: "知りたいことから、次の手続きまで。",
     mode: "回答言語",
     auto: "質問の言語",
@@ -40,9 +40,9 @@ export const chatUI = {
     source: "公式案内",
     original: "韓国語の回答を見る",
     privacy: "個人情報は入力しないでください",
-    about: "ソウルトーク知識連携",
+    about: "チャットについて",
     disclosure:
-      "ソウル市からソウルトークの基礎知識が提供されることを想定したデモです。現在は公開された公式案内に基づく回答例を表示します。DB・API・リアルタイム翻訳には接続していません。",
+      "公開された公式案内をもとに、必要な行動をご案内します。回答の出典と確認日もご確認ください。",
     scope: "韓国語・日本語・英語 / 生活FAQ・薬代・公共施設予約・通訳支援",
     followups: ["必要な書類は？", "助成の残額はどこで確認できますか？"],
     examples: [
@@ -73,17 +73,17 @@ const records = {
     action: "workflow",
     ko: {
       title: "금천구 약제비 청구는 이렇게 준비해요",
-      body: "금천구의 시술 후 원외약 청구 예시예요. 먼저 이번 시술 회차의 지원 잔액을 확인하세요.\n방문·이메일·e보건소 경로가 안내되어 있어요. e보건소는 처음 시술비 지원을 e보건소로 신청한 경우에 이용할 수 있어요.\n청구 기한은 시술 완료 후 1개월 이내예요. 다른 지역이나 개인별 지원 가능 여부는 담당 기관에 확인해 주세요.",
+      body: "금천구의 시술 후 원외약 청구 안내예요. 먼저 이번 시술 회차의 지원 잔액을 확인하세요.\n방문·이메일·e보건소 경로가 안내되어 있어요. e보건소는 처음 시술비 지원을 e보건소로 신청한 경우에 이용할 수 있어요.\n청구 기한은 시술 완료 후 1개월 이내예요. 다른 지역이나 개인별 지원 가능 여부는 담당 기관에 확인해 주세요.",
       cta: "금천구 준비 절차 보기",
     },
     ja: {
       title: "衿川区の薬代請求を準備しましょう",
-      body: "衿川区で治療後の院外処方薬代を請求する例です。まず今回の治療回の助成残額を確認してください。\n窓口・メール・e保健所での請求が案内されています。e保健所は、最初の治療費助成を同サービスで申請した場合に利用できます。\n期限は治療終了後1か月以内です。他の地域や個別の助成可否は担当機関に確認してください。",
+      body: "衿川区で治療後の院外処方薬代を請求する手続きの案内です。まず今回の治療回の助成残額を確認してください。\n窓口・メール・e保健所での請求が案内されています。e保健所は、最初の治療費助成を同サービスで申請した場合に利用できます。\n期限は治療終了後1か月以内です。他の地域や個別の助成可否は担当機関に確認してください。",
       cta: "衿川区の準備ステップを見る",
     },
     en: {
       title: "Prepare a medication claim in Geumcheon",
-      body: "This example covers medication prescribed outside the clinic after fertility treatment in Geumcheon. First, check the remaining support for this treatment cycle.\nThe guide lists in-person, email and e-Health Center claims. The e-Health Center route is available if you originally applied for treatment support there.\nClaim within one month of completing treatment. Confirm individual eligibility and rules for other districts with the responsible office.",
+      body: "This guide covers medication prescribed outside the clinic after fertility treatment in Geumcheon. First, check the remaining support for this treatment cycle.\nThe guide lists in-person, email and e-Health Center claims. The e-Health Center route is available if you originally applied for treatment support there.\nClaim within one month of completing treatment. Confirm individual eligibility and rules for other districts with the responsible office.",
       cta: "View Geumcheon preparation steps",
     },
   },
@@ -143,7 +143,7 @@ const records = {
     },
     en: {
       title: "Start with Seoul Public Service Reservation",
-      body: "Find booking information for sports facilities, meeting rooms, cultural events and classes.\nSearch for a facility or program, then check its application conditions and schedule on the detail page. This demo does not check live availability or make reservations.",
+      body: "Find booking information for sports facilities, meeting rooms, cultural events and classes.\nSearch for a facility or program, then check its application conditions and schedule on the detail page. Check availability and complete your reservation on the official website.",
       cta: "Open public service reservations",
     },
   },
@@ -171,14 +171,14 @@ const records = {
     topic: null,
     ko: {
       title: "이 질문은 아직 안내하기 어려워요",
-      body: "이 체험에서는 이사·퇴직금 등 생활 FAQ, 금천구 약제비, 공공시설 예약, 통역 지원을 질문할 수 있어요. 어떤 안내가 필요한지 알려주세요.",
+      body: "이사·퇴직금 등 생활 FAQ, 금천구 약제비, 공공시설 예약, 통역 지원을 질문할 수 있어요. 어떤 안내가 필요한지 알려주세요.",
     },
     ja: {
       title: "この質問はまだご案内できません",
-      body: "このデモでは引っ越し・退職金などの生活FAQ、衿川区の薬代請求、公共施設予約、通訳支援について質問できます。必要な案内を教えてください。",
+      body: "引っ越し・退職金などの生活FAQ、衿川区の薬代請求、公共施設予約、通訳支援について質問できます。必要な案内を教えてください。",
     },
     en: {
-      title: "This question is outside the demo",
+      title: "I don’t have a verified answer for this yet",
       body: "You can ask about moving, severance pay and other life FAQs, Geumcheon medication claims, public facility reservations or interpreting support. Which guide do you need?",
     },
   },
