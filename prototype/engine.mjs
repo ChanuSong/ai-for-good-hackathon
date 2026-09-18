@@ -54,7 +54,7 @@ export function documentPlan(result, documents) {
 
 export function inquiryPacket(profile, result, data, language = 'ko', documents = null) {
   if (!['ko', 'ja'].includes(language)) throw new Error('Unsupported language');
-  const heading = tr('MARO 합성 사례 문의 준비서', 'MARO 架空事例の問い合わせ準備シート');
+  const heading = tr('SeoulMate 합성 사례 문의 준비서', 'SeoulMate 架空事例の問い合わせ準備シート');
   const note = tr('검증용 합성 사례입니다. 자격 승인·실제 신청·기관 검토 결과가 아닙니다.', '検証用の架空事例です。資格承認・実際の申請・窓口の確認結果ではありません。');
   const lines = [heading[language], note[language], '', tr('가정: 외국인 여성·한국인 남성 가구', '想定：外国籍の妻・韓国籍の夫の世帯')[language]];
   for (const [key, field] of Object.entries(fields)) lines.push(`${field.label[language]}: ${field.values[profile[key]][language]}`);

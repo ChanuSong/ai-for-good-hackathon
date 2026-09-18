@@ -6,11 +6,11 @@
 
 | 자료 | 활용 | 확인 상태 |
 | --- | --- | --- |
-| 사용자 제공 MARO PRD 초안 | 제품 비전, 가설, 페르소나, 기능, 시나리오, 정책 방향 | 대화에 제공된 전체 내용을 문서별로 재구성. 통계·행정 요건의 공식 근거는 아님 |
+| 사용자 제공 SeoulMate PRD 초안 | 제품 비전, 가설, 페르소나, 기능, 시나리오, 정책 방향 | 대화에 제공된 전체 내용을 문서별로 재구성. 통계·행정 요건의 공식 근거는 아님 |
 | [참가자 안내](https://ai-impact-guide.vercel.app/) | 날짜·일정·제출·발표·팀·심사·준비물 | 기존 문서의 확인 기록에 더해 이번 대화에서 사용자가 안내 본문 전체 제공 |
 | [Luma 행사](https://luma.com/sfdsjsxi) | 행사 배경과 최초 안내 | 2026-09-16 대화에서 확인. 최신 운영 세부사항은 참가자 안내를 기준으로 정리 |
 | [팀 발표 슬라이드](https://docs.google.com/presentation/d/1H8AwFjUAygR4h_0Nx5Cl-DYU-LipoeBPI1sOirr9urA/edit) | 팀 발표 작업 위치 | 직접 텍스트 내보내기 요청은 HTTP 401. 연결된 문서 MCP 세션도 없어 내용 확인·수정하지 못함 |
-| [팀 구성·제출 시트](https://docs.google.com/spreadsheets/d/1ecLzgoYdHuH76vKPhOAq8OXDws_VC0nkrkbukybozAQ/edit?usp=sharing) | 9번 MARO 팀 구성과 제출 칸 | 2026-09-17 공개 CSV로 확인. 변경 가능한 스냅샷만 로컬 기록 |
+| [팀 구성·제출 시트](https://docs.google.com/spreadsheets/d/1ecLzgoYdHuH76vKPhOAq8OXDws_VC0nkrkbukybozAQ/edit?usp=sharing) | 9번 SeoulMate 팀 구성과 제출 칸 | 2026-09-17 공개 CSV로 확인. 변경 가능한 스냅샷만 로컬 기록 |
 | [운영진 발표 템플릿](https://docs.google.com/presentation/d/1kiuGUgRq4GpcJT-dm8X7hzVg7ofdiyarkkyo5E6eoro/copy) | 10장 발표 준비 | 참가자 안내·팀 시트에서 링크 확인, 템플릿 내부는 미확인 |
 | 정책 제안서 공식 양식 | 최종 1장 제출 | 안내에 오픈카톡방 공지로 명시. 양식 원문은 미확인 |
 | 동일 주최 측 과거 행사 경험 | 사전 개발 진행 근거 | 사용자가 사전 개발 허용 경험을 설명. 이번 공지의 명문 확인으로 표현하지 않음 |
@@ -32,7 +32,7 @@
 
 | ID | 내용 | 상태·근거 |
 | --- | --- | --- |
-| D-01 | MARO / My Administrative Roadmap 명칭과 한 줄 소개 | 사용자 PRD 기준 |
+| D-01 | SeoulMate / My Administrative Roadmap 명칭과 한 줄 소개 | 사용자 PRD 기준 |
 | D-02 | 혼합국적 부부를 MVP 검증 대상으로 선택 | 사용자 PRD 기준 |
 | D-03 | 첫 P0는 서초구 난임 지원 신청 준비 한 사례; 이사는 후속 후보 | 2026-09-17 보완 작업에서 축소. 지역은 사용자 위임으로 선정 |
 | D-04 | 초기 AI Roadmap·역할·완료 구상 | D-13으로 현재 P0 대체; 설계 이력으로 보존 |

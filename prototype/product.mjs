@@ -1,3 +1,22 @@
+import { districts, answerLabels, enrichReply } from "./chat-support.mjs";
+import { documentState, readerView } from "./document-reader.mjs";
+import {
+  chatUI,
+  replyLanguages,
+  createReply,
+  chatActionUrls,
+} from "./chat.mjs";
+import { findGuide, matchGuide } from "./life-guides.mjs";
+import {
+  guideState,
+  homeTools,
+  faqView,
+  guideView,
+  qrView,
+  makeGuideLink,
+  makeQR,
+} from "./guide-views.mjs";
+
 const $ = (id) => document.getElementById(id);
 const esc = (value) =>
   String(value ?? "").replace(
@@ -8,6 +27,8 @@ const esc = (value) =>
       ],
   );
 const paths = {
+  camera: "M3 7h4l2-3h6l2 3h4v14H3Zm13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z",
+  qr: "M3 3h6v6H3Zm12 0h6v6h-6ZM3 15h6v6H3Zm12 0h3v3h3v3h-6ZM3 12h6m3-9v6m0 3h3m3 0h3m-9 3v6",
   home: "m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z",
   route: "M5 4v12a4 4 0 0 0 4 4h6a4 4 0 0 0 0-8H9m6-8h4v4M19 4l-6 6",
   folder:
@@ -115,7 +136,7 @@ const texts = {
     inputRequired: "상황을 입력하거나 예시를 선택해 주세요.",
     loadError: "자료를 불러오지 못했어요.",
     aboutText:
-      "금천구 약제비 청구를 체험하는 목업입니다. 실제 신청·잔액 조회·AI는 연결되지 않았어요.",
+      "공개 안내를 바탕으로 한 생활행정 목업입니다. 실제 신청·개인 조회·AI는 연결되지 않았어요.",
     aboutPrivacy:
       "입력과 체크는 이 화면에서만 유지되며, 새로고침하면 지워집니다.",
     review: "행정·번역 검토 전",
@@ -142,7 +163,7 @@ const texts = {
       "이번 시술 회차에 약제비를 청구할 잔액이 남아 있는지 확인하세요.",
       "처음 시술비 지원을 신청한 방법에 따라 온라인 청구 가능 여부가 달라져요.",
       "아래 네 묶음을 준비하고, 추가 서류가 필요한지 확인하세요.",
-      "준비한 서류를 보건소에 제출하세요. MARO에서 제출을 대신하지는 않아요.",
+      "준비한 서류를 보건소에 제출하세요. SeoulMate에서 제출을 대신하지는 않아요.",
       "기관에 접수 여부와 보완할 내용을 확인하세요.",
     ],
     docNames: [
@@ -242,7 +263,7 @@ const texts = {
     inputRequired: "状況を入力するか例文を選んでください。",
     loadError: "資料を読み込めませんでした。",
     aboutText:
-      "衿川区の薬代請求を体験するモックアップです。実際の申請・残額照会・AIは未接続です。",
+      "公開案内に基づく生活行政のデモです。実際の申請・個人情報照会・AIは未接続です。",
     aboutPrivacy:
       "入力とチェックはこの画面のみで保持し、再読み込みすると消去します。",
     review: "行政・翻訳確認前",
@@ -263,7 +284,7 @@ const texts = {
       "今回の治療回で薬代を請求できる残額があるか確認してください。",
       "最初の治療費助成の申請方法により、オンライン請求の可否が変わります。",
       "以下の4項目を準備し、追加書類の有無を確認してください。",
-      "準備した書類を保健所に提出します。MAROは提出を代行しません。",
+      "準備した書類を保健所に提出します。SeoulMateは提出を代行しません。",
       "機関で受付状況と補完事項を確認してください。",
     ],
     docNames: [
@@ -297,6 +318,18 @@ const state = {
   error: "",
 };
 const t = () => texts[state.language];
+const conversation = {
+  mode: "auto",
+  draft: "",
+  messages: [],
+  context: null,
+  pending: false,
+  generation: 0,
+  district: "",
+  phase: 0,
+  retryQuestion: "",
+};
+const chatText = () => chatUI[state.language];
 let toastTimer;
 function toast(message) {
   $("toast").textContent = message;
@@ -308,17 +341,20 @@ const action = (id, label, kind = "primary", symbol = "") =>
   `<button type="button" class="${kind}" data-action="${id}">${esc(label)}${symbol ? icon(symbol) : ""}</button>`;
 const official = () =>
   `<a href="${esc(data.source.url)}" target="_blank" rel="noopener noreferrer">${icon("shield")}${esc(t().source)}${icon("link")}</a>`;
-const brand = `<a class="brand" href="./index.html" aria-label="MARO">MARO<span class="brand-dot"></span></a>`;
+const brand = `<a class="brand" href="./index.html" aria-label="SeoulMate">SeoulMate<span class="brand-dot"></span></a>`;
 function shell(content) {
   const u = t(),
     active =
-      state.view === "docs"
-        ? "docs"
-        : state.view === "workflow"
-          ? "tasks"
-          : "home";
-  return `<div class="app-frame"><header class="app-header">${brand}<div class="header-actions"><button class="demo-pill" data-action="about" aria-label="${u.about}">${u.demo}</button><label class="language-control">${icon("globe")}<select id="language" aria-label="${u.language}"><option value="ko" ${state.language === "ko" ? "selected" : ""}>한국어</option><option value="ja" ${state.language === "ja" ? "selected" : ""}>日本語</option></select></label></div></header><main id="main" tabindex="-1" class="main ${state.view === "workflow" && state.started ? "flow-main" : ""}">${content}</main><nav class="tab-bar" aria-label="MARO">${[
+      state.view === "chat"
+        ? "chat"
+        : state.view === "docs"
+          ? "docs"
+          : state.view === "workflow"
+            ? "tasks"
+            : "home";
+  return `<div class="app-frame ${state.view === "chat" ? "chat-frame" : ""}"><header class="app-header">${brand}<div class="header-actions"><button class="demo-pill" data-action="about" aria-label="${u.about}">${u.demo}</button><label class="language-control">${icon("globe")}<select id="language" aria-label="${u.language}"><option value="ko" ${state.language === "ko" ? "selected" : ""}>한국어</option><option value="ja" ${state.language === "ja" ? "selected" : ""}>日本語</option></select></label></div></header><main id="main" tabindex="-1" class="main ${state.view === "workflow" && state.started ? "flow-main" : ""} ${state.view === "chat" ? "chat-main" : ""}">${content}</main><nav class="tab-bar" aria-label="SeoulMate">${[
     ["home", "home", u.home],
+    ["chat", "chat", state.language === "ko" ? "채팅" : "チャット"],
     ["tasks", "route", u.tasks],
     ["docs", "folder", u.docs],
   ]
@@ -331,9 +367,90 @@ function shell(content) {
 function pageTitle(title, sub = "") {
   return `<div class="page-title"><h1>${title}</h1>${sub ? `<p>${sub}</p>` : ""}</div>`;
 }
+function chatMessage(message) {
+  const u = chatText();
+  if (message.role === "user")
+    return `<div class="chat-user">${esc(message.text)}</div>`;
+  if (message.role === "status")
+    return `<div class="chat-stopped">${state.language === "ko" ? "답변을 중지했어요." : "回答を停止しました。"}${message === conversation.messages.at(-1) && !conversation.pending ? `<button data-action="chat-retry">${state.language === "ko" ? "다시 시도" : "再試行"}</button>` : ""}</div>`;
+  const reply = message.reply,
+    labels = answerLabels[reply.language];
+  const nextAction = reply.action?.startsWith("guide:")
+    ? `<button class="chat-next" data-guide="${esc(reply.action.slice(6))}" data-guide-language="${reply.language}">${esc(reply.cta)}${icon("arrow")}</button>`
+    : !reply.action
+      ? ""
+      : reply.action === "workflow"
+        ? `<button class="chat-next" data-action="chat-workflow">${esc(reply.cta)}${icon("arrow")}</button>`
+        : `<a class="chat-next" href="${esc(chatActionUrls[reply.action])}" ${reply.action === "phone" ? "" : 'target="_blank" rel="noopener noreferrer"'}>${esc(reply.cta)}${icon("link")}</a>`;
+  const terms = reply.terms?.length
+    ? `<section class="answer-glossary"><h3>${icon("spark")}${labels.terms}</h3>${reply.terms.map((term) => `<div class="term-row"><span class="term-korean" lang="ko">${esc(term.name)}</span><strong>${esc(term.title)}</strong><p>${esc(term.description)}</p></div>`).join("")}</section>`
+    : "";
+  const local = reply.location
+    ? `<aside class="answer-local"><div class="local-heading">${icon("pin")}<span>${labels.selected}<strong>${esc(reply.location.district)}</strong></span></div><p>${esc(reply.location.note)}</p><a href="${esc(reply.location.url)}" ${reply.location.url.startsWith("tel:") ? "" : 'target="_blank" rel="noopener noreferrer"'}>${esc(reply.location.label)}${icon("arrow")}</a></aside>`
+    : reply.needsLocation
+      ? `<button class="chat-location-prompt" data-action="chat-location">${icon("pin")}${labels.choose}${icon("chevron")}</button>`
+      : "";
+  const sources = reply.sources || (reply.source ? [reply.source] : []);
+  return `<article class="chat-answer" lang="${reply.language}"><div class="chat-author"><span class="chat-avatar">${icon("spark")}</span><strong>SeoulMate</strong><span class="reply-language">${replyLanguages[reply.language]}</span></div><div class="chat-answer-body"><h2>${esc(reply.title)}</h2><div class="answer-paragraphs">${reply.body
+    .split(/\n+/)
+    .map((p) => `<p>${esc(p)}</p>`)
+    .join(
+      "",
+    )}</div>${terms}${local}${reply.steps?.length ? `<details class="answer-steps"><summary>${labels.next}<span>${reply.steps.length}</span></summary><ol>${reply.steps.map((step) => `<li>${esc(step)}</li>`).join("")}</ol></details>` : ""}${sources.length ? `<details class="answer-sources"><summary>${icon("shield")}${labels.source}<span>${sources.length}</span></summary>${sources.map((source) => `<a class="chat-source" href="${esc(source.url)}" target="_blank" rel="noopener noreferrer"><span>${esc(source.title)}<small>${new URL(source.url).hostname} · ${{ ko: "자료 확인", ja: "確認日", en: "Checked" }[reply.language]} ${reply.checkedAt || "2026-09-18"}</small></span>${icon("link")}</a>`).join("")}</details>` : ""}${reply.language !== "ko" ? `<details class="chat-original"><summary>${labels.original}</summary><div lang="ko"><strong>${esc(reply.korean.title)}</strong><p>${esc(reply.korean.body)}</p></div></details>` : ""}${nextAction}</div></article>`;
+}
+
+function chat() {
+  const u = chatText();
+  return `<div class="chat-toolbar"><button class="chat-knowledge" data-action="chat-about">${icon("shield")}<span>${u.subtitle}</span>${icon("info")}</button><button class="icon-button" data-action="chat-clear" aria-label="${u.clear}" title="${u.clear}">${icon("spark")}</button></div><div class="chat-context-bar"><button data-action="chat-location">${icon("pin")}<span>${conversation.district ? districts[conversation.district][state.language] : state.language === "ko" ? "내 지역 설정" : "地域を選ぶ"}</span><small>${state.language === "ko" ? "직접 선택" : "手動選択"}</small>${icon("chevron")}</button><span>${state.language === "ko" ? "쉬운 용어 설명" : "やさしい用語解説"}</span></div><div id="chat-scroll" class="chat-scroll"><div id="chat-messages" role="log" aria-label="${state.language === "ko" ? "대화" : "会話"}" aria-live="polite">${conversation.messages.length ? conversation.messages.map(chatMessage).join("") : `<section class="chat-welcome"><span class="chat-welcome-icon">${icon("chat")}</span><h1>${esc(u.title).replace(/\n/g, "<br>")}</h1><p>${u.description}</p><div class="chat-examples">${u.examples.map((q, i) => `<button data-chat-example="${i}"><span>${esc(q)}</span>${icon("arrow")}</button>`).join("")}</div></section>`}${conversation.pending ? `<div class="chat-typing" role="status"><span class="chat-dots" aria-hidden="true"><i></i><i></i><i></i></span>${conversation.phase ? (state.language === "ko" ? "쉬운 말로 정리하고 있어요" : "やさしい言葉にまとめています") : u.thinking}<button data-action="chat-stop">${state.language === "ko" ? "중지" : "停止"}</button></div>` : ""}</div>${conversation.context === "medication" && !conversation.pending ? `<div class="chat-followups">${u.followups.map((q, i) => `<button data-chat-followup="${i}">${esc(q)}</button>`).join("")}</div>` : ""}</div><div class="chat-compose-area"><label class="chat-language">${icon("globe")}<span>${u.mode}</span><select id="reply-language">${[["auto", u.auto], ...Object.entries(replyLanguages)].map(([value, label]) => `<option value="${value}" ${conversation.mode === value ? "selected" : ""}>${label}</option>`).join("")}</select></label><form id="chat-form"><label for="chat-input" class="sr-only">${u.placeholder}</label><textarea id="chat-input" rows="1" maxlength="600" placeholder="${u.placeholder}">${esc(conversation.draft)}</textarea><button type="submit" class="chat-send" aria-label="${u.send}" ${conversation.pending || !conversation.draft.trim() ? "disabled" : ""}>${icon("arrow")}</button></form><p class="chat-privacy">${u.privacy}</p></div>`;
+}
+function scrollChat() {
+  const container = $("chat-scroll");
+  if (container) container.scrollTop = container.scrollHeight;
+}
+async function sendChat(value, retry = false) {
+  const question = value.trim().slice(0, 600);
+  if (!question || conversation.pending) return;
+  const generation = conversation.generation;
+  const reply = enrichReply(
+    createReply(question, {
+      mode: conversation.mode,
+      appLanguage: state.language,
+      context: conversation.context,
+    }),
+    conversation.district,
+  );
+  if (retry && conversation.messages.at(-1)?.role === "status")
+    conversation.messages.pop();
+  if (!retry) conversation.messages.push({ role: "user", text: question });
+  conversation.retryQuestion = question;
+  conversation.phase = 0;
+  conversation.draft = "";
+  conversation.pending = true;
+  render();
+  scrollChat();
+  await new Promise((resolve) => setTimeout(resolve, 450));
+  if (generation !== conversation.generation) return;
+  conversation.phase = 1;
+  if (state.view === "chat") render();
+  await new Promise((resolve) => setTimeout(resolve, 650));
+  if (generation !== conversation.generation) return;
+  conversation.messages.push({ role: "assistant", reply });
+  conversation.context = reply.topic;
+  conversation.pending = false;
+  if (state.view === "chat") {
+    render();
+    const last = document.querySelector(".chat-answer:last-child");
+    const container = $("chat-scroll");
+    if (last && container)
+      container.scrollTop +=
+        last.getBoundingClientRect().top -
+        container.getBoundingClientRect().top -
+        16;
+  }
+}
 function home() {
   const u = t();
-  return `${pageTitle(u.welcome)}<form id="situation-form" class="composer-form">${state.error ? `<p class="error" role="alert">${esc(state.error)}</p>` : ""}<div class="composer"><label class="sr-only" for="situation">${u.situation}</label><textarea id="situation" maxlength="600" placeholder="${u.placeholder}">${esc(state.input)}</textarea><button type="button" data-action="sample" class="example-pill">${icon("spark")}${u.medicine}<span>+</span></button></div><div class="context-fields"><label class="context-field">${icon("pin")}<span class="sr-only">${u.region}</span><select id="district"><option value="geumcheon" ${state.district === "geumcheon" ? "selected" : ""}>${u.district}</option><option value="other" ${state.district === "other" ? "selected" : ""}>${u.otherRegion}</option></select></label><label class="context-field"><span class="sr-only">${u.stage}</span><select id="stage">${[
+  return `${pageTitle(u.welcome)}${homeTools(state.language, icon)}<form id="situation-form" class="composer-form">${state.error ? `<p class="error" role="alert">${esc(state.error)}</p>` : ""}<div class="composer"><label class="sr-only" for="situation">${u.situation}</label><textarea id="situation" maxlength="600" placeholder="${u.placeholder}">${esc(state.input)}</textarea><button type="button" data-action="sample" class="example-pill">${icon("spark")}${u.medicine}<span>+</span></button></div><div class="context-fields"><label class="context-field">${icon("pin")}<span class="sr-only">${u.region}</span><select id="district"><option value="geumcheon" ${state.district === "geumcheon" ? "selected" : ""}>${u.district}</option><option value="other" ${state.district === "other" ? "selected" : ""}>${u.otherRegion}</option></select></label><label class="context-field"><span class="sr-only">${u.stage}</span><select id="stage">${[
     ["after", u.finished],
     ["before", u.before],
     ["unknown", u.unknown],
@@ -387,21 +504,43 @@ function docs() {
   return `${pageTitle(u.docsTitle, u.docsSub)}<div class="document-summary"><span>${u.docGroup}</span><strong id="document-count">${state.documents.size}<small> / 4</small></strong></div>${documentList()}<p class="inline-note">${icon("info")}${u.docsNote}</p>${sourceRow()}`;
 }
 function render(focus = false) {
+  const restoreChatInput =
+    !focus && document.activeElement?.id === "chat-input";
+  const selection = restoreChatInput
+    ? [$("chat-input").selectionStart, $("chat-input").selectionEnd]
+    : null;
   document.documentElement.lang = state.language;
   document.title =
-    state.language === "ko" ? "MARO · 생활행정" : "MARO · 生活の手続き";
+    state.language === "ko"
+      ? "SeoulMate · 생활행정"
+      : "SeoulMate · 生活の手続き";
   $("app").innerHTML = shell(
-    state.view === "home"
-      ? home()
-      : state.view === "result"
-        ? result()
-        : state.view === "docs"
-          ? docs()
-          : workflow(),
+    state.view === "faq"
+      ? faqView(state.language, icon)
+      : state.view === "guide"
+        ? guideView(icon)
+        : state.view === "qr"
+          ? qrView(state.language, icon, location.href)
+          : state.view === "reader"
+            ? readerView(state.language, icon, guideState.language)
+            : state.view === "chat"
+              ? chat()
+              : state.view === "home"
+                ? home()
+                : state.view === "result"
+                  ? result()
+                  : state.view === "docs"
+                    ? docs()
+                    : workflow(),
   );
   if (focus) {
     $("main").focus({ preventScroll: true });
     window.scrollTo({ top: 0, behavior: "instant" });
+  }
+  if (state.view === "chat") scrollChat();
+  if (restoreChatInput && $("chat-input")) {
+    $("chat-input").focus({ preventScroll: true });
+    $("chat-input").setSelectionRange(...selection);
   }
 }
 function sheetHeader(title) {
@@ -417,14 +556,45 @@ function showHelp() {
 function showAbout() {
   const u = t(),
     d = $("help-dialog");
-  d.innerHTML = `${sheetHeader("MARO")}<p class="about-copy">${u.aboutText}</p><p class="about-copy">${u.aboutPrivacy}</p><span class="status-chip">${u.review}</span>${sourceRow()}<a class="research-link" href="./research.html?view=B">${u.research}${icon("link")}</a>`;
+  d.innerHTML = `${sheetHeader("SeoulMate")}<p class="about-copy">${u.aboutText}</p><p class="about-copy">${u.aboutPrivacy}</p><span class="status-chip">${u.review}</span>${sourceRow()}<a class="research-link" href="./research.html?view=B">${u.research}${icon("link")}</a>`;
   d.showModal();
 }
 function navigate(view) {
+  if (view !== "guide" && location.hash)
+    history.replaceState(null, "", location.pathname + location.search);
   state.error = "";
   state.view = view;
   render(true);
 }
+function openGuide(id, language = state.language) {
+  if (!findGuide(id)) return;
+  guideState.id = id;
+  guideState.language = Object.hasOwn(replyLanguages, language)
+    ? language
+    : state.language;
+  history.pushState(
+    null,
+    "",
+    makeGuideLink(location.href, id, guideState.language),
+  );
+  navigate("guide");
+}
+function readGuideRoute() {
+  const params = new URLSearchParams(location.hash.slice(1));
+  if (!findGuide(params.get("guide"))) return false;
+  guideState.id = params.get("guide");
+  guideState.language = Object.hasOwn(replyLanguages, params.get("lang"))
+    ? params.get("lang")
+    : "ko";
+  if (guideState.language !== "en") state.language = guideState.language;
+  state.view = "guide";
+  return true;
+}
+window.addEventListener("popstate", () => {
+  if (!data) return;
+  if (!readGuideRoute()) state.view = "home";
+  render(true);
+});
 function supported(value) {
   const v = value.trim();
   return (
@@ -435,6 +605,11 @@ function supported(value) {
 let finding = false;
 async function analyze() {
   if (finding) return;
+  const guide = matchGuide(state.input);
+  if (guide) {
+    openGuide(guide.id);
+    return;
+  }
   state.error = "";
   if (!state.input.trim()) state.error = t().inputRequired;
   else if (state.district !== "geumcheon" || state.stage !== "after")
@@ -447,7 +622,8 @@ async function analyze() {
     return;
   }
   finding = true;
-  $("app").innerHTML = `<div class="app-frame"><main id="main" class="finding-page" tabindex="-1"><div class="finding-content" role="status"><span class="finding-spinner" aria-hidden="true"></span><span class="finding-label">${state.language === "ko" ? "금천구 보건소의 약제비 지원 안내를<br>확인하고 있어요" : "衿川区保健所の薬剤費支援の案内を<br>確認しています"}</span></div></main></div>`;
+  $("app").innerHTML =
+    `<div class="app-frame"><main id="main" class="finding-page" tabindex="-1"><div class="finding-content" role="status"><span class="finding-spinner" aria-hidden="true"></span><span class="finding-label">${state.language === "ko" ? "금천구 보건소의 약제비 지원 안내를<br>확인하고 있어요" : "衿川区保健所の薬剤費支援の案内を<br>確認しています"}</span></div></main></div>`;
   $("main").focus({ preventScroll: true });
   window.scrollTo({ top: 0, behavior: "instant" });
   // Brief presentation delay for the demo; no remote analysis is performed.
@@ -457,19 +633,61 @@ async function analyze() {
   navigate("result");
 }
 $("app").addEventListener("submit", (e) => {
+  if (e.target.id === "chat-form") {
+    e.preventDefault();
+    sendChat(conversation.draft);
+  }
   if (e.target.id === "situation-form") {
     e.preventDefault();
     analyze();
   }
 });
 $("app").addEventListener("input", (e) => {
+  if (e.target.id === "chat-input") {
+    conversation.draft = e.target.value;
+    e.target.style.height = "auto";
+    e.target.style.height = `${Math.min(e.target.scrollHeight, 90)}px`;
+    $("chat-form").querySelector("button").disabled =
+      conversation.pending || !conversation.draft.trim();
+  }
   if (e.target.id === "situation") state.input = e.target.value;
 });
 $("app").addEventListener("change", (e) => {
+  if (
+    ["guide-language", "qr-language", "reader-language"].includes(e.target.id)
+  ) {
+    guideState.language = e.target.value;
+    if (state.view === "guide")
+      history.replaceState(null, "", makeGuideLink(location.href));
+    if (state.view === "qr") guideState.qrReady = false;
+    render();
+    return;
+  }
+  if (e.target.id === "qr-guide") {
+    guideState.id = e.target.value;
+    guideState.qrReady = false;
+    render();
+    return;
+  }
+  if (e.target.matches("[data-guide-check]")) {
+    const checked = guideState.checked.get(guideState.id) || new Set();
+    const item = Number(e.target.dataset.guideCheck);
+    if (e.target.checked) checked.add(item);
+    else checked.delete(item);
+    guideState.checked.set(guideState.id, checked);
+    return;
+  }
+  if (e.target.id === "reply-language") {
+    conversation.mode = e.target.value;
+  }
   if (e.target.id === "language") {
     const old = texts[state.language];
     const wasExample = state.input === old.example;
     state.language = e.target.value;
+    if (state.view === "guide") {
+      guideState.language = state.language;
+      history.replaceState(null, "", makeGuideLink(location.href));
+    }
     if (wasExample) state.input = t().example;
     state.error = "";
     render();
@@ -489,6 +707,131 @@ $("app").addEventListener("change", (e) => {
 });
 async function handleAction(id) {
   switch (id) {
+    case "capture-document":
+      $("document-camera").click();
+      break;
+    case "upload-document":
+      $("document-upload").click();
+      break;
+    case "document-reset":
+      clearDocument();
+      navigate("reader");
+      break;
+    case "document-sample":
+      clearDocument();
+      documentState.sample = true;
+      render(true);
+      break;
+    case "analyze-document":
+      if (!documentState.photoUrl && !documentState.sample) break;
+      documentState.result = true;
+      render(true);
+      break;
+    case "open-faq":
+      navigate("faq");
+      break;
+    case "open-reader":
+      guideState.language = state.language;
+      navigate("reader");
+      break;
+    case "open-qr":
+      if (state.view !== "guide") guideState.language = state.language;
+      guideState.qrReady = false;
+      navigate("qr");
+      break;
+    case "generate-qr":
+      guideState.qrReady = true;
+      render(true);
+      break;
+    case "preview-qr":
+      openGuide(guideState.id, guideState.language);
+      break;
+    case "read-sample":
+      openGuide("moving", guideState.language);
+      break;
+    case "copy-qr":
+      try {
+        await navigator.clipboard.writeText(makeGuideLink(location.href));
+        toast(
+          state.language === "ko"
+            ? "안내 링크를 복사했어요."
+            : "案内リンクをコピーしました。",
+        );
+      } catch {
+        toast(
+          state.language === "ko"
+            ? "QR 아래 링크를 복사해 주세요."
+            : "QRの下のリンクをコピーしてください。",
+        );
+      }
+      break;
+    case "download-qr": {
+      const url = URL.createObjectURL(
+        new Blob([makeQR(makeGuideLink(location.href))], {
+          type: "image/svg+xml",
+        }),
+      );
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `SeoulMate-${guideState.id}-${guideState.language}.svg`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      break;
+    }
+    case "guide-chat": {
+      const question = findGuide(guideState.id)[guideState.language].question;
+      conversation.mode = guideState.language;
+      navigate("chat");
+      sendChat(question);
+      break;
+    }
+    case "chat-location": {
+      const ja = state.language === "ja";
+      $("help-dialog").innerHTML =
+        `${sheetHeader(ja ? "案内する地域" : "안내받을 지역")}<p class="sheet-intro">${ja ? "このデモでは地域を手動で選びます。次の質問から反映します。" : "이 체험에서는 지역을 직접 선택해요. 다음 질문부터 반영돼요."}</p><div class="district-options">${Object.entries(
+          districts,
+        )
+          .map(
+            ([id, d]) =>
+              `<button data-chat-district="${id}" aria-pressed="${conversation.district === id}">${icon("pin")}<span>${d[state.language]}</span>${conversation.district === id ? icon("check") : icon("chevron")}</button>`,
+          )
+          .join(
+            "",
+          )}</div><button class="text-button" data-chat-district="">${ja ? "地域を設定しない" : "지역 설정 없이 사용"}</button><p class="sheet-note">${ja ? "GPSの取得や位置情報の送信は行いません。" : "GPS를 조회하거나 위치를 전송하지 않아요."}</p>`;
+      $("help-dialog").showModal();
+      break;
+    }
+    case "chat-stop":
+      if (!conversation.pending) break;
+      conversation.generation += 1;
+      conversation.pending = false;
+      conversation.messages.push({ role: "status" });
+      render();
+      break;
+    case "chat-retry":
+      sendChat(conversation.retryQuestion, true);
+      break;
+    case "chat-about": {
+      const u = chatText();
+      $("help-dialog").innerHTML =
+        `${sheetHeader(u.about)}<p class="about-copy">${u.disclosure}</p><p class="sheet-note">${u.scope}</p>`;
+      $("help-dialog").showModal();
+      break;
+    }
+    case "chat-clear":
+      conversation.generation += 1;
+      conversation.messages = [];
+      conversation.context = null;
+      conversation.pending = false;
+      conversation.draft = "";
+      render(true);
+      break;
+    case "chat-workflow":
+      state.matched = true;
+      state.district = "geumcheon";
+      state.stage = "after";
+      navigate(state.started ? "workflow" : "result");
+      break;
     case "about":
       showAbout();
       break;
@@ -562,6 +905,30 @@ async function handleAction(id) {
   }
 }
 $("app").addEventListener("click", (e) => {
+  const guide = e.target.closest("[data-guide]");
+  if (guide) {
+    openGuide(
+      guide.dataset.guide,
+      guide.dataset.guideLanguage || state.language,
+    );
+    return;
+  }
+  const filter = e.target.closest("[data-faq-filter]");
+  if (filter) {
+    guideState.category = filter.dataset.faqFilter;
+    render();
+    return;
+  }
+  const example = e.target.closest("[data-chat-example], [data-chat-followup]");
+  if (example) {
+    const u = chatText();
+    sendChat(
+      example.hasAttribute("data-chat-example")
+        ? u.examples[Number(example.dataset.chatExample)]
+        : u.followups[Number(example.dataset.chatFollowup)],
+    );
+    return;
+  }
   const nav = e.target.closest("[data-nav]");
   if (nav) {
     navigate(nav.dataset.nav === "tasks" ? "workflow" : nav.dataset.nav);
@@ -576,7 +943,77 @@ $("app").addEventListener("click", (e) => {
   const a = e.target.closest("[data-action]");
   if (a) handleAction(a.dataset.action);
 });
+$("app").addEventListener("keydown", (e) => {
+  if (
+    e.target.id === "chat-input" &&
+    e.key === "Enter" &&
+    !e.shiftKey &&
+    !e.isComposing
+  ) {
+    e.preventDefault();
+    sendChat(conversation.draft);
+  }
+});
+let documentGeneration = 0;
+function clearDocument() {
+  documentGeneration += 1;
+  if (documentState.photoUrl) URL.revokeObjectURL(documentState.photoUrl);
+  documentState.photoUrl = "";
+  documentState.sample = false;
+  documentState.result = false;
+}
+async function loadDocument(e) {
+  const file = e.target.files?.[0];
+  e.target.value = "";
+  if (!file) return;
+  if (
+    !/^image\/(jpeg|png|webp|gif|heic|heif|avif)$/.test(file.type) ||
+    file.size > 15 * 1024 * 1024
+  ) {
+    toast(
+      state.language === "ko"
+        ? "15MB 이하의 사진 파일을 선택해 주세요."
+        : "15MB以下の画像を選んでください。",
+    );
+    return;
+  }
+  const generation = ++documentGeneration;
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    if (generation !== documentGeneration) {
+      URL.revokeObjectURL(url);
+      return;
+    }
+    if (documentState.photoUrl) URL.revokeObjectURL(documentState.photoUrl);
+    documentState.photoUrl = url;
+    documentState.sample = false;
+    documentState.result = false;
+    guideState.language = state.language;
+    navigate("reader");
+  } catch {
+    URL.revokeObjectURL(url);
+    if (generation === documentGeneration)
+      toast(
+        state.language === "ko"
+          ? "이 사진을 열 수 없어요. JPG 또는 PNG로 다시 선택해 주세요."
+          : "写真を開けません。JPGかPNGで選び直してください。",
+      );
+  }
+}
+$("document-camera").addEventListener("change", loadDocument);
+$("document-upload").addEventListener("change", loadDocument);
 $("help-dialog").addEventListener("click", (e) => {
+  const district = e.target.closest("[data-chat-district]");
+  if (district) {
+    const id = district.dataset.chatDistrict;
+    if (!id || Object.hasOwn(districts, id)) conversation.district = id;
+    $("help-dialog").close();
+    render();
+    return;
+  }
   const a = e.target.closest("[data-action]");
   if (a) handleAction(a.dataset.action);
   if (e.target === $("help-dialog")) {
@@ -611,9 +1048,10 @@ try {
     !data.source?.url?.startsWith("https://www.geumcheon.go.kr/")
   )
     throw Error("invalid dataset");
+  readGuideRoute();
   render();
 } catch {
   $("app").innerHTML =
-    `<main class="main"><section class="panel empty-state"><h1>MARO</h1><p role="alert">${texts.ko.loadError}</p><button type="button" class="primary" id="reload">다시 불러오기</button></section></main>`;
+    `<main class="main"><section class="panel empty-state"><h1>SeoulMate</h1><p role="alert">${texts.ko.loadError}</p><button type="button" class="primary" id="reload">다시 불러오기</button></section></main>`;
   $("reload").addEventListener("click", () => location.reload());
 }

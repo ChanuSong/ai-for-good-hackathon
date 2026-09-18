@@ -1,0 +1,14 @@
+{
+  "redirects": [
+    { "source": "/", "destination": "/prototype/", "permanent": false },
+    { "source": "/prototype", "destination": "/prototype/", "permanent": false }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Referrer-Policy", "value": "no-referrer" }
+      ]
+    }
+  ]
+}

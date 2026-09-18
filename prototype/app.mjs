@@ -2,7 +2,7 @@ import {defaults, fields, evaluate, inquiryPacket, documentPlan} from './engine.
 
 const translations = {
   ko: {
-    eyebrow: 'MARO · 신청 준비 검증실', headline: '서류마다 헤매지 않도록.',
+    eyebrow: 'SeoulMate · 신청 준비 검증실', headline: '서류마다 헤매지 않도록.',
     intro: '직접 준비할 서류와 조회 가능한 서류를 구분하고, 필요한 준비 경로를 찾아요.',
     notice: '합성 사례 전용 · 공식 원문 대조, 사람 검토 전 · AI 미연결',
     profileTitle: '01. 가상의 상황', profileNote: '외국인 여성·한국인 남성 가구의 난임 지원 준비 사례예요. 실제 개인 정보를 입력하지 않아요.',
@@ -21,7 +21,7 @@ const translations = {
     language: '언어', glossary: '낯선 서류·용어 이해하기', glossaryToggle: '쉬운 용어 설명 보기 — A·B 공통', fail: '자료를 불러오지 못했어요. README의 실행 명령으로 다시 열어 주세요.', count: n => `확인할 항목 ${n}개 · 완료율이 아니에요`,
   },
   ja: {
-    eyebrow: 'MARO · 申請準備の検証', headline: '書類の準備で迷わないために。',
+    eyebrow: 'SeoulMate · 申請準備の検証', headline: '書類の準備で迷わないために。',
     intro: '自分で準備する書類と照会可能な書類を区分し、必要な準備方法を探します。',
     notice: '架空事例専用 · 公式原文と照合済み・担当者確認前 · AI未接続',
     profileTitle: '01. 架空の状況', profileNote: '外国籍の妻と韓国籍の夫の不妊治療助成の準備事例です。実際の個人情報は入力しません。',

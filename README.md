@@ -1,4 +1,4 @@
-# MARO — My Administrative Roadmap
+# SeoulMate — My Administrative Roadmap
 
 > 내 상황에서 필요한 생활행정을 찾고, 지금 할 행동부터 실제 처리 확인까지 이어주는 AI 행정 실행 코파일럿
 
@@ -23,7 +23,7 @@
 Discover → Plan → Act → Unblock → Confirm
 
 1. 사용자가 공식 사업명을 몰라도 자신의 상황을 말한다.
-2. MARO가 검토된 범위에서 필요한 업무와 미확인 조건을 정리한다.
+2. SeoulMate가 검토된 범위에서 필요한 업무와 미확인 조건을 정리한다.
 3. 가장 먼저 할 행동 하나를 보여준다.
 4. 막히면 이유에 맞는 확인 질문·담당 창구로 연결한다.
 5. 사용자 준비 상태와 실제 기관 처리 결과를 구분한다.
@@ -32,12 +32,12 @@ Discover → Plan → Act → Unblock → Confirm
 
 프로젝트 루트에서:
 
-    python3 -m http.server 8973 --bind 127.0.0.1
+    python3 scripts/serve_preview.py --port 8973
 
 - 제품 데모: http://127.0.0.1:8973/prototype/
 - 연구용 A/B 비교: http://127.0.0.1:8973/prototype/research.html?view=B
 
-합성 사례만 사용하며 새로고침 시 초기화한다. 서버가 저장소 전체를 제공하므로 로컬에서만 실행한다.
+합성 사례만 사용하며 새로고침 시 초기화한다. 전용 미리보기 서버는 공개 화면·데이터만 제공하며 .env와 내부 문서 접근을 차단한다.
 
 ## 문서
 
