@@ -1,12 +1,12 @@
 # AI·데이터·출처 설계
 
-상태: 로컬 규칙 기반 웹앱 구현, 모델 미연결 · 기준일: 2026-09-17
+상태: 제품 데모·연구용 비교 도구 모두 규칙 기반, 모델 미연결 · 기준일: 2026-09-18
 
-현재 앱은 [근거 데이터](../data/seocho-infertility.json)의 claim·출처를 사용한다. [JSON Schema](../data/roadmap.schema.json)와 [수용 사례](../data/acceptance-cases.json)는 초기 로드맵 데이터 설계·검사 자료다. 공개 원문 대조와 사람·기관 검증은 다르다. 현재 자료는 사람 검토 전이다. 현재 UI는 HTML/CSS/JavaScript이며 데이터베이스 없이 단일 세션 메모리만 사용한다. 모델·공개 호스팅은 미정이다.
+기본 제품 데모는 [약제비 청구 데이터](../data/geumcheon-medication-claim.json)를 사용한다. 기존 연구용 비교 화면은 [서초구 근거 데이터](../data/seocho-infertility.json)의 claim·출처를 사용한다. [JSON Schema](../data/roadmap.schema.json)와 [수용 사례](../data/acceptance-cases.json)는 초기 로드맵 데이터 설계·검사 자료다. 공개 원문 대조와 사람·기관 검증은 다르다. 현재 자료는 사람 검토 전이다. 현재 UI는 HTML/CSS/JavaScript이며 데이터베이스 없이 단일 세션 메모리만 사용한다. 모델·공개 호스팅은 미정이다.
 
-현재 앱은 claim·용어·서류 구분 데이터를 사용한다. `data/document-preparation.json`과 `data/preparation-glossary.json`은 별도 자료이며 초기 로드맵 스키마의 대상이 아니다. 실제 동작의 기준은 [구현 계약](10-implementation-contract.md)이다.
+연구용 화면은 claim·용어·서류 구분 데이터를 사용하고, 기본 제품 화면은 단계별 action·why·details·unblock·공식 출처를 사용한다. `data/document-preparation.json`과 `data/preparation-glossary.json`은 별도 자료이며 초기 로드맵 스키마의 대상이 아니다. 실제 동작의 기준은 [구현 계약](10-implementation-contract.md)이다.
 
-아래 AI 생성·역할 배정·Household·Roadmap·Task 모델은 **후속 설계 이력**이다. 현재 UI에는 역할·Task 완료·profile_revision·요청 ID가 없으며 합성 조건과 언어·보기 상태만 메모리에서 관리한다.
+아래 AI 생성·역할 배정·Household 모델은 후속 설계 이력이다. 기본 제품 UI에는 로드맵 단계 진행 상태가 있지만 실제 기관 완료 상태나 profile_revision·요청 ID는 없고, 상태는 탭 메모리에서만 관리한다.
 
 ## 1. 후속 AI 역할
 
