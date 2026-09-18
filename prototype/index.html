@@ -4,28 +4,51 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
-  <title>MARO · 신청 준비 점검</title>
+  <title>MARO · My Administrative Roadmap</title>
   <link rel="stylesheet" href="./style.css">
-  <script type="module" src="./app.mjs"></script>
+  <script type="module" src="./product.mjs"></script>
 </head>
-<body>
-  <header><a class="brand" href="./index.html">maro<span>My Administrative Roadmap</span></a><label id="language-label">언어 <select id="language"><option value="ko">한국어</option><option value="ja">日本語</option></select></label></header>
+<body class="product-demo">
+  <header>
+    <a class="brand" href="./index.html">maro<span>My Administrative Roadmap</span></a>
+    <label id="language-label">언어
+      <select id="language">
+        <option value="ko">한국어</option>
+        <option value="ja">日本語</option>
+      </select>
+    </label>
+  </header>
   <main>
-    <p class="eyebrow" id="eyebrow"></p>
-    <h1 id="headline"></h1><p class="lead" id="intro"></p>
-    <p class="notice" id="notice"></p>
-    <div class="layout">
-      <aside><h2 id="profile-title"></h2><p id="profile-note" class="muted"></p><form id="profile"></form><button id="reset" class="secondary" type="button"></button></aside>
-      <section class="workspace" aria-labelledby="view-title">
-        <div class="view-controls"><h2 id="view-title"></h2><div class="switch" role="group" aria-label="비교 화면"><button id="baseline" type="button"></button><button id="structured" type="button"></button></div></div>
-        <p class="muted" id="parity-note"></p>
-        <label class="glossary-toggle"><input type="checkbox" id="glossary-toggle" checked> <span id="glossary-label"></span></label>
-        <p id="announcement" role="status" aria-live="polite"></p>
-        <div id="results"></div>
-        <section class="packet"><h2 id="packet-title"></h2><p id="packet-note" class="muted"></p><textarea id="packet" readonly rows="13" aria-label="문의 준비서"></textarea><pre id="packet-print"></pre><button type="button" id="copy"></button><button type="button" id="print" class="secondary"></button><p id="copy-status" role="status"></p></section>
-      </section>
-    </div>
-    <footer id="footer"></footer>
+    <section class="hero">
+      <p class="eyebrow" id="eyebrow"></p>
+      <h1 id="headline"></h1>
+      <p class="lead" id="intro"></p>
+      <p class="notice" id="notice"></p>
+    </section>
+    <section class="situation-panel">
+      <h2 id="situation-title"></h2>
+      <p class="muted" id="situation-note"></p>
+      <textarea id="situation" rows="3" aria-label="상황 입력"></textarea>
+      <div class="situation-actions">
+        <button id="analyze" type="button"></button>
+        <button id="reset" class="secondary" type="button"></button>
+      </div>
+      <p id="announcement" role="status" aria-live="polite"></p>
+    </section>
+    <section id="workspace" class="product-workspace" hidden>
+      <div class="roadmap-column">
+        <h2 id="roadmap-title"></h2>
+        <p id="scenario-summary" class="muted"></p>
+        <ol id="steps" class="roadmap-steps"></ol>
+      </div>
+      <div class="action-column">
+        <article id="current-card" class="current-card"></article>
+        <aside id="unblock" class="unblock-card" hidden></aside>
+      </div>
+    </section>
+    <footer>
+      <a id="research-link" href="./research.html?view=B"></a>
+    </footer>
   </main>
 </body>
 </html>
